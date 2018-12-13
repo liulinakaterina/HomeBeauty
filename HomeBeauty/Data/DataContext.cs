@@ -1,9 +1,10 @@
 ﻿using HomeBeauty.Entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace HomeBeauty.Data
 {
-    public class DataContext : DbContext
+    public class DataContext : IdentityDbContext<User>
     {
         public DbSet<Allergen> Allergens { get; set; }
         public DbSet<CareProduct> CareProducts { get; set; }
@@ -15,7 +16,7 @@ namespace HomeBeauty.Data
         public DbSet<Hospital> Hospitals { get; set; }
         public DbSet<Illness> Illnesses { get; set; }
         public DbSet<Treatment> Treatments { get; set; }
-        public DbSet<User> Users { get; set; }
+        public DbSet<User> UsersInSystem { get; set; }
         public DbSet<WaterReception> WaterReceptions { get; set; }
 
         public DataContext(DbContextOptions<DataContext> options)

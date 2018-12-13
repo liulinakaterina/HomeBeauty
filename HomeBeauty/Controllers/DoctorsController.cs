@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using HomeBeauty.Data;
 using HomeBeauty.Entities;
 using HomeBeauty.Models;
+using System;
 
 namespace HomeBeauty.Controllers
 {
@@ -24,13 +25,13 @@ namespace HomeBeauty.Controllers
         public IEnumerable<DoctorModel> GetDoctors()
         {
             var doctors = _context.Doctors.Join(
-                                _context.Users,
+                                _context.UsersInSystem,
                                 doctorsData => doctorsData.UserId,
-                                users => users.UserId,
+                                users => Convert.ToInt32(users.Id),
                                 (d, u) => new
                                 {
                                     DoctorId = d.DoctorId,
-                                    Name = u.Name,
+                                    Name = u.UserName,
                                     Role = u.Role,
                                     Birthday = u.Birthday,
                                     Country = u.Country,
@@ -64,7 +65,7 @@ namespace HomeBeauty.Controllers
             }
 
             var doctor = await _context.Doctors.FindAsync(id);
-            var user = _context.Users.Where(x => x.UserId == doctor.UserId).FirstOrDefault();
+            var user = _context.UsersInSystem.Where(x => Convert.ToInt32(x.Id) == doctor.UserId).FirstOrDefault();
 
             if (doctor == null)
             {
@@ -81,21 +82,21 @@ namespace HomeBeauty.Controllers
                         user = il.UserId
                     });
 
-                var patients = _context.Users.Join(
+                var patients = _context.UsersInSystem.Join(
                     patientsCards,
-                    u => u.UserId,
+                    u => Convert.ToInt32(u.Id),
                     p => p.user,
                     (u, p) => new Patient()
                     {
-                        UserId = u.UserId,
-                        Name = u.Name
+                        UserId = Convert.ToInt32(u.Id),
+                        Name = u.UserName
                     }).ToList();
 
                 doctorModel = new DoctorModel()
                 {
                     DoctorId = doctor.DoctorId,
-                    UserId = user.UserId,
-                    Name = user.Name,
+                    UserId = Convert.ToInt32(user.Id),
+                    Name = user.UserName,
                     Role = user.Role,
                     Birthday = user.Birthday,
                     Country = user.Country,
@@ -191,10 +192,10 @@ namespace HomeBeauty.Controllers
                 return BadRequest(ModelState);
             }
 
-            var user = _context.Users.Find(doctorModel.UserId);
+            var user = _context.UsersInSystem.Find(doctorModel.UserId);
             var doctor = new Doctor();
             doctor.DoctorId = doctorModel.DoctorId;
-            doctor.UserId = user.UserId;
+            doctor.UserId = Convert.ToInt32(user.Id);
             doctor.Qualification = doctorModel.Qualification;
             doctor.HospitalId = doctorModel.HospitalId;
 
@@ -236,14 +237,14 @@ namespace HomeBeauty.Controllers
                        user = il.UserId
                    });
 
-            var patients = _context.Users.Join(
+            var patients = _context.UsersInSystem.Join(
                 patientsCards,
-                u => u.UserId,
+                u => Convert.ToInt32(u.Id),
                 p => p.user,
                 (u, p) => new Patient()
                 {
-                    UserId = u.UserId,
-                    Name = u.Name,
+                    UserId = Convert.ToInt32(u.Id),
+                    Name = u.UserName,
                     Allergens = u.Allergens.Select(x =>
                         new AllergenModel()
                         {

@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using HomeBeauty.Data;
 using HomeBeauty.Entities;
 using HomeBeauty.Models;
+using System;
 
 namespace HomeBeauty.Controllers
 {
@@ -22,13 +23,13 @@ namespace HomeBeauty.Controllers
 
         // GET: api/Users
         [HttpGet]
-        public IEnumerable<UserRegisterRequestModel> GetUsers()
+        public IEnumerable<UserModel> GetUsers()
         {
-            var users = _context.Users.Select(x =>
-                new UserRegisterRequestModel()
+            var users = _context.UsersInSystem.Select(x =>
+                new UserModel()
                 {
-                    UserId = x.UserId,
-                    Name = x.Name,
+                    UserId = Convert.ToInt32(x.Id),
+                    Name = x.UserName,
                     Role = x.Role,
                     Email = x.Email,
                     Birthday = x.Birthday,
@@ -48,11 +49,11 @@ namespace HomeBeauty.Controllers
                 return BadRequest(ModelState);
             }
 
-            var requestedUser = await _context.Users.FindAsync(id);
-            var user = new UserRegisterRequestModel()
+            var requestedUser = await _context.UsersInSystem.FindAsync(id);
+            var user = new UserModel()
             {
-                UserId = requestedUser.UserId,
-                Name = requestedUser.Name,
+                UserId = Convert.ToInt32(requestedUser.Id),
+                Name = requestedUser.UserName,
                 Role = requestedUser.Role,
                 Email = requestedUser.Email,
                 Birthday = requestedUser.Birthday,
@@ -152,7 +153,7 @@ namespace HomeBeauty.Controllers
 
         // PUT: api/Users/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser([FromRoute] int id, [FromBody] UserRegisterRequestModel registeredUser)
+        public async Task<IActionResult> PutUser([FromRoute] int id, [FromBody] UserModel registeredUser)
         {
             if (!ModelState.IsValid)
             {
@@ -163,13 +164,13 @@ namespace HomeBeauty.Controllers
             {
                 return BadRequest();
             }
-            var user = await _context.Users.FindAsync(id);
+            var user = await _context.UsersInSystem.FindAsync(id);
             user.Address = registeredUser.Address;
             user.Birthday = registeredUser.Birthday;
             user.City = registeredUser.City;
             user.Country = registeredUser.Country;
             user.Email = registeredUser.Email;
-            user.Name = registeredUser.Name;
+            user.UserName = registeredUser.Name;
             user.Role = registeredUser.Role;
 
             _context.Entry(user).State = EntityState.Modified;
@@ -195,7 +196,7 @@ namespace HomeBeauty.Controllers
 
         // POST: api/Users
         [HttpPost]
-        public async Task<IActionResult> PostUser([FromBody] UserRegisterRequestModel registeredUser)
+        public async Task<IActionResult> PostUser([FromBody] UserModel registeredUser)
         {
             if (!ModelState.IsValid)
             {
@@ -203,20 +204,20 @@ namespace HomeBeauty.Controllers
             }
             var user = new User
             {
-                UserId = registeredUser.UserId,
+                Id = registeredUser.UserId.ToString(),
                 Address = registeredUser.Address,
                 Birthday = registeredUser.Birthday,
                 City = registeredUser.City,
                 Country = registeredUser.Country,
                 Email = registeredUser.Email,
-                Name = registeredUser.Name,
+                UserName = registeredUser.Name,
                 Role = registeredUser.Role
             };
             
-            _context.Users.Add(user);
+            _context.UsersInSystem.Add(user);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetUser", new { id = user.UserId }, user);
+            return CreatedAtAction("GetUser", new { id = Convert.ToInt32(user.Id) }, user);
         }
 
         // DELETE: api/Users/5
@@ -228,13 +229,13 @@ namespace HomeBeauty.Controllers
                 return BadRequest(ModelState);
             }
 
-            var user = await _context.Users.FindAsync(id);
+            var user = await _context.UsersInSystem.FindAsync(id);
             if (user == null)
             {
                 return NotFound();
             }
 
-            _context.Users.Remove(user);
+            _context.UsersInSystem.Remove(user);
             await _context.SaveChangesAsync();
 
             return Ok(user);
@@ -242,7 +243,7 @@ namespace HomeBeauty.Controllers
 
         private bool UserExists(int id)
         {
-            return _context.Users.Any(e => e.UserId == id);
+            return _context.UsersInSystem.Any(e => Convert.ToInt32(e.Id) == id);
         }
     }
 }

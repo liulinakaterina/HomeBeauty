@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using HomeBeauty.Data;
 using HomeBeauty.Entities;
 using HomeBeauty.Models;
+using System;
 
 namespace HomeBeauty.Controllers
 {
@@ -35,12 +36,12 @@ namespace HomeBeauty.Controllers
                 Phone = x.Phone,
                 Email = x.Email,
                 Doctors = _context.Doctors.Where(d => d.HospitalId == x.HospitalId).Join(
-                            _context.Users,
+                            _context.UsersInSystem,
                             doctors => doctors.UserId,
-                            users => users.UserId,
+                            users => Convert.ToInt32(users.Id),
                             (d, u) => new
                             {
-                                Name = u.Name,
+                                Name = u.UserName,
                                 Role = u.Role,
                                 Birthday = u.Birthday,
                                 Country = u.Country,
@@ -97,12 +98,12 @@ namespace HomeBeauty.Controllers
                     Email = hospital.Email,
                     Doctors = _context.Doctors.Where(d => d.HospitalId == hospital.HospitalId).
                         Join(
-                            _context.Users,
+                            _context.UsersInSystem,
                             doctors => doctors.UserId,
-                            users => users.UserId,
+                            users => Convert.ToInt32(users.Id),
                             (d, u) => new
                             {
-                                Name = u.Name,
+                                Name = u.UserName,
                                 Role = u.Role,
                                 Birthday = u.Birthday,
                                 Country = u.Country,

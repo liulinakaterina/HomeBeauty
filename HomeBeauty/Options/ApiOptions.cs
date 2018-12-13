@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace HomeBeauty.Options
+﻿namespace HomeBeauty.Options
 {
     public class ApiOptions
     {
